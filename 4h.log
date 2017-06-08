@@ -1,0 +1,3 @@
+2017-06-07 09:42:13 - for4h - ERROR - {'password': 'asdfagasdf', 'name': 'helloworld'}
+2017-06-07 09:45:00 - for4h - INFO - {'name': 'helloworld', 'password': 'asdfagasdf'}
+2017-06-07 11:03:23 - for4h - INFO - {'password': 'password', 'username': 'abc'}
