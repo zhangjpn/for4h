@@ -5,6 +5,8 @@ import logging
 import os.path as path
 from pymongo import MongoClient
 import uuid
+from .data_process import process_and_upload
+from threading import Thread
 
 # 日志记录
 log_path = path.join(path.dirname(path.dirname(__file__)), '4h.log')
@@ -24,9 +26,8 @@ def init_views(app):
     @app.route(r'/4h/restservices/lciprest/lcipgetaccesstoken/query/', methods=['POST'])
     def create_token():
         """根据企业代码和密码生成access_token返回"""
-        username = request.json.get('username')
-        password = request.json.get('password')
-        # 用户验证（暂略）
+        # username = request.json.get('username')
+        # password = request.json.get('password')
         logger.info('User : %s requests for token.')
         # 生成token返回
         token = ''.join(uuid.uuid1().split('-'))
@@ -37,19 +38,20 @@ def init_views(app):
                     }
         return jsonify(res_data), 200
 
-    @app.route(r'/4h/restservices/lciprest/lcipcarfixrecordadd/query/', methods=['POST'])
+    @app.route(r'/4h/restservices/lciprest/lcipcarfixrecordadd/query', methods=['POST'])
     def create_carfixrecord():
         """新增维修记录"""
         data = request.json.copy()
-        token = data.pop('access_token')
         logger.info(data)
-        # 验证token有效性（暂略）
-        # 将数据存放到数据库中
-        # 向维修记录添加唯一识别码
-        cli = MongoClient()
-        coll_fixrecord = cli.for4h.carfixrecord
-        coll_fixrecord.insert_one(data)
-
+        # 将原始数据存放到数据库中
+        try:
+            cli = MongoClient()
+            coll_fixrecord = cli.for4h.carfixrecord
+            coll_fixrecord.insert_one(data)
+        except Exception as e:
+            logger.warning('原始数据保存失败，触发异常：%s' % e)
+        # 数据处理和上传
+        Thread(target=process_and_upload, args=(data,)).start()
         res = {
                 "code": "1",
                 "status": "新增成功",
@@ -65,11 +67,7 @@ def init_views(app):
     def create_repairpart():
         """增加维修配件"""
         data = request.json.copy()
-
-        token = data.pop('access_token')
-
         logger.info(data)
-        # 验证token有效性（暂略）
         # 将数据存放到数据库中
         cli = MongoClient()
         coll_fixrecord = cli.for4h.repairparts
@@ -80,19 +78,13 @@ def init_views(app):
             "status": "新增成功",
             "partsid": part_id,  # 汽车配件记录唯一标识
         }
-
-
         return jsonify(res_data), 200
 
-    @app.route(r'/4h/restservices/lciprest/lcipcarfixrecordadd/query/', methods=['POST'])
+    @app.route(r'/4h/restservices/lciprest/lcipcarfixrecordadd/query', methods=['POST'])
     def create_repairitem():
         """增加维修项目"""
         data = request.json.copy()
-
-        token = data.pop('access_token')
-
         logger.info(data)
-        # 验证token有效性（暂略）
         # 将数据存放到数据库中
         cli = MongoClient()
         coll_fixrecord = cli.for4h.repairitems
@@ -105,28 +97,20 @@ def init_views(app):
         }
         return jsonify(res_data), 200
 
-    @app.route(r'/4h/restservices/lciprest/lcipcarfixrecordadd/query/', methods=['POST'])
+    @app.route(r'/4h/restservices/lciprest/lcipcarfixrecordadd/query', methods=['POST'])
     def create_other():
         """增加其它费用"""
         data = request.json.copy()
-        token = data.pop('access_token')
-
         logger.info(data)
-        # 验证token有效性（暂略）
         # 将数据存放到数据库中
         cli = MongoClient()
         coll_fixrecord = cli.for4h.others
         coll_fixrecord.insert_one(data)
         other_id = data.get('_id').__str__()  # 生成唯一识别码
-
         res_data = {
             'code': '1',
             'status': '',
             '': other_id,  # 部件唯一识别码
         }
-
         return jsonify(res_data), 200
-
-
-
     return app
