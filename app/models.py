@@ -115,6 +115,7 @@ class StdCarFixRecord(Document):
         'db_alias': 'for4h',
         'collection': 'stdcarfixrecords',
         'strict': False,
+        'ordering': ['-updated', '-created'],
     }
     plateNo = StringField(default=None)  # 车牌号码
     engineNo = StringField(default=None)  # 发动机号码
@@ -156,5 +157,11 @@ class CarFixRecord(Document):
         'db_alias': 'for4h',
         'collection': 'maintenaces',
         'strict': False,
+        'ordering': ['-updated', '-created'],
     }
     # 对应接口的字段
+    carinfo = StringField()
+    repairhourslist = StringField()
+    carpartslist = StringField()
+    othercostlist = StringField()
+

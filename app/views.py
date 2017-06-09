@@ -1,4 +1,5 @@
 #-*- coding:utf-8 -*-
+import datetime
 
 from flask import jsonify, request
 import logging
@@ -41,13 +42,21 @@ def init_views(app):
     @app.route(r'/4h/restservices/lciprest/lcipcarfixrecordadd/query', methods=['POST'])
     def create_carfixrecord():
         """新增维修记录"""
-        data = request.json.copy()
-        logger.info(data)
+        try:
+            data = request.json.copy()
+            logger.info(data)
+        except:
+            print('Failed to parse json data')
+            return jsonify({'error': 'failed'})
+        if not data:
+            data['created'] = datetime.datetime.now()
+            data['update'] = datetime.datetime.now()
         # 将原始数据存放到数据库中
         try:
             cli = MongoClient()
             coll_fixrecord = cli.for4h.carfixrecord
             coll_fixrecord.insert_one(data)
+            data.pop('_id')
         except Exception as e:
             logger.warning('原始数据保存失败，触发异常：%s' % e)
         # 数据处理和上传
@@ -61,7 +70,6 @@ def init_views(app):
                 "enginenumber": request.json.get('enginenumber')
                 }
         return jsonify(res), 200
-
 
     @app.route(r'/4h/restservices/lciprest/lcipcarpartsrecordadd/query', methods=['POST'])
     def create_repairpart():

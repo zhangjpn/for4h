@@ -4,20 +4,30 @@ from flask_admin import Admin
 from flask_admin.contrib.mongoengine import ModelView
 from .models import CarFixRecord, StdCarFixRecord
 from mongoengine import connect
-
+from .fields import STDCARFIXRECORDFIELD
 
 class CarFixRecordModelView(ModelView):
     """展示原始数据"""
     can_export = True
     column_list = ()
-    column_label = {}
+    can_edit = False
+    can_create = False  # 调试
+    can_delete = False
+    column_labels = {
+        'carinfo': '车辆信息',
+        'repairhourslist': '维修项目',
+        'carpartslist': '配件信息',
+        'othercostlist': '其它费用信息',
+    }
 
 
 class StdCarFixRecordModelView(ModelView):
     """展示标准数据"""
     can_export = True
-    column_list = ()
-    column_label = {}
+    can_edit = False
+    can_create = False
+    can_delete = False
+    column_labels = STDCARFIXRECORDFIELD
 
 
 def init_admin(app):
