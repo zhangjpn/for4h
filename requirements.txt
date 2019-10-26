@@ -33,6 +33,6 @@ sphinx-bootstrap-theme==0.5.3
 sphinxcontrib-websupport==1.0.1
 spyne==2.12.14
 uWSGI==2.0.15
-Werkzeug==0.12.2
+Werkzeug==0.15.3
 WTForms==2.1
 zeep==2.0.0
