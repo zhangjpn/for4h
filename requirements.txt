@@ -16,7 +16,7 @@ isodate==0.5.4
 itsdangerous==0.24
 Jinja2==2.9.6
 ladon==0.9.38
-lxml==3.8.0
+lxml==4.9.1
 MarkupSafe==1.0
 mongoengine==0.13.0
 packaging==16.8
